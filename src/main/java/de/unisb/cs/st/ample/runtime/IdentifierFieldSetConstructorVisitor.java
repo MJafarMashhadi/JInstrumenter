@@ -3,6 +3,9 @@ package de.unisb.cs.st.ample.runtime;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * Visits the methods of classes and adds the code to set the `___objectid` field value in the constructor.
+ */
 public class IdentifierFieldSetConstructorVisitor extends MethodVisitor implements Opcodes {
 
 	public static final String FIELD_OBJECTID = "___objectid";
@@ -23,8 +26,7 @@ public class IdentifierFieldSetConstructorVisitor extends MethodVisitor implemen
 	@Override
 	public void visitMethodInsn(int opCode, String owner, String name, String desc, boolean isInterface) {
 		super.visitMethodInsn(opCode, owner, name, desc, isInterface);
-		if (!isConstructorInstrumented && (opCode == INVOKESPECIAL) && 
-				name.equals("<init>") && owner.equals(superClassName)) {
+		if (!isConstructorInstrumented && (opCode == INVOKESPECIAL) &&  name.equals("<init>") && owner.equals(superClassName)) {
 			isConstructorInstrumented = true;
 			super.visitVarInsn(ALOAD, 0);
 			super.visitMethodInsn(INVOKESTATIC, "de/unisb/cs/st/ample/runtime/CallSequenceSetRecorder", "getNextId", "()I", false);
