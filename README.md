@@ -37,6 +37,7 @@ JInstrumenter can be attached to ant and maven targets as well.
 These configuration options are available at runtime:
 
 `jinst.filterfile`    Path to the white/blacklist of classes file. Default is set to `jifilter.txt`
+`jinst.tracefile`     Pattern to create trace file names. You can use `%tid%` and `%time%` in the name too.
 
 
 example:
@@ -45,6 +46,7 @@ example:
         -Xbootclasspath/a:lib/asm-7.0.jar:lib/asm-analysis-7.0.jar:lib/asm-commons-7.0.jar:lib/asm-tree-7.0.jar:lib/asm-util-7.0.jar:lib/commons-collections-1.0.jar:lib/commons-io-1.0.jar:lib/commons-lang-2.1.jar:lib/log4j-1.2.13.jar:lib/util-0.1.jar:ample/ample-1.0.jar \
         -javaagent:ample/ample-1.0.jar \
         -Djinst.filterfile=whitelist.txt \
+        -Djinst.tracefile=output/%time%/Thread-%tid%.txt \
         -jar path/to/target/application.jar
       
 
