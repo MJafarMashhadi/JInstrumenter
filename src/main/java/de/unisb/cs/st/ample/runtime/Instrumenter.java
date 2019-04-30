@@ -15,11 +15,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Instrumenter implements ClassFileTransformer {
+	Logger logger = Logger.getLogger("JInstrumenter");
 
 	public static final String TRACECLASSNAME = "de/unisb/cs/st/ample/runtime/CallSequenceSetRecorder";
 	public static final String PROPERTIES_FILE_NAME = "ignore_list.txt";
@@ -39,6 +44,7 @@ public class Instrumenter implements ClassFileTransformer {
 	
 	private Instrumenter() {
 		createForbiddenClasses();
+		logger.log(Level.INFO, "Initialized instrumenter");
 	}
 
 	private void createForbiddenClasses() {
@@ -56,7 +62,7 @@ public class Instrumenter implements ClassFileTransformer {
 			}
 			forbiddenPatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
 		} catch (IOException e) {
-			System.err.println("Couldn't read ignore list file");
+			logger.log(Level.WARNING, "Couldn't read filter file");
 		}
 //		forbiddenPatterns.add("java/util/LinkedList");
 //		forbiddenPatterns.add("java/util/Queue");
@@ -98,12 +104,13 @@ public class Instrumenter implements ClassFileTransformer {
 			if (loader != null) {
 				applicationClasses.add(className);
 			}
+
 			return transform(classBytes, className);
 		} else {
 			return classBytes;
 		}
 		} catch (Throwable oops) {
-			oops.printStackTrace(System.out);
+			logger.log(Level.SEVERE, "Error in transforming class " + className, oops);
 			return classBytes;
 		}
 	}
@@ -124,24 +131,17 @@ public class Instrumenter implements ClassFileTransformer {
     }
 
 	protected byte[] transform(byte[] classBytes, String className) {
-        // try {
-            System.err.println("Transforming " + className);
-            // displayClass(classBytes, createScratchFile(className + "-before"));
-            ClassReader classReader = new ClassReader(classBytes);
-            ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-            CallSequenceClassVisitor visitor = new CallSequenceClassVisitor(
-                    classWriter,
-                    methodIdentifierMap,
-                    classIdentifierMap.getIdentifier(className),
-                    preloadedClasses
-            );
-            classReader.accept(visitor, ClassReader.SKIP_FRAMES);
-            // displayClass(classWriter.toByteArray(),  createScratchFile(className + "-after"));
-            return classWriter.toByteArray();
-        // } catch (IOException ignored) {
-        //     ignored.printStackTrace();
-        // }
-        // return null;
+		logger.log(Level.INFO, "Transforming " + className);
+		ClassReader classReader = new ClassReader(classBytes);
+		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+		CallSequenceClassVisitor visitor = new CallSequenceClassVisitor(
+				classWriter,
+				methodIdentifierMap,
+				classIdentifierMap.getIdentifier(className),
+				preloadedClasses
+		);
+		classReader.accept(visitor, ClassReader.SKIP_FRAMES);
+		return classWriter.toByteArray();
 	}
 	
 	public static Instrumenter getInstrumenter() {
