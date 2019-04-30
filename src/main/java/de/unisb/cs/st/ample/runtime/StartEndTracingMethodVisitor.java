@@ -8,6 +8,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
+/**
+ * The visitor that adds calls to (static|dynamic)Method(Started|Ended) methods.
+ *
+ */
 public class StartEndTracingMethodVisitor extends LocalVariablesSorter {
 
 	private Label methodStartLabel;

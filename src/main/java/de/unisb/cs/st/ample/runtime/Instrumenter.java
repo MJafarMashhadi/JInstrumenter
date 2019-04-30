@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Instrumenter implements ClassFileTransformer {
-	Logger logger = Logger.getLogger("JInstrumenter");
+	protected static Logger logger = Logger.getLogger("JInstrumenter");
 
 	public static final String TRACECLASSNAME = "de/unisb/cs/st/ample/runtime/CallSequenceSetRecorder";
 

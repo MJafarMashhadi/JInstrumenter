@@ -45,7 +45,6 @@ public class CallSequenceClassVisitor extends ClassVisitor implements Opcodes {
 		this.superClassName = superName;
 		this.isTopLevelClass = superName.startsWith("java/lang") || superName.startsWith("sun") || preloadedClasses.contains(superName);
 		this.isInterface = (access & ACC_INTERFACE) > 0;
-//		System.out.println("Is interface: " + isInterface);
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
