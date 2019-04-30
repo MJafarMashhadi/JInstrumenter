@@ -48,6 +48,13 @@ example:
         -jar path/to/target/application.jar
       
 
+## Filter file
+
+The first line of filter file should indicate whether it is a black list (ignore list) or
+a white list with a directive: `[white]`, `[include]`, `[whitelist]` 
+or `[black]`, `[exclude]`, `[blacklist]`. Comments start with `#`. You can add patterns
+like `java/*`, `com/example/a*`, or add fixed names like 
+`de.unisb.cs.st.ample.runtime.Instrumenter`. 
 
 ### Note
 
