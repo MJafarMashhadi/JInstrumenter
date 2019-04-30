@@ -27,7 +27,6 @@ public class Instrumenter implements ClassFileTransformer {
 	Logger logger = Logger.getLogger("JInstrumenter");
 
 	public static final String TRACECLASSNAME = "de/unisb/cs/st/ample/runtime/CallSequenceSetRecorder";
-	public static final String PROPERTIES_FILE_NAME = "ignore_list.txt";
 
 	private IdentifierMap methodIdentifierMap = new IdentifierMap();
 	
@@ -36,9 +35,39 @@ public class Instrumenter implements ClassFileTransformer {
 	private static Instrumenter singletonInstance = new Instrumenter();
 
 	private HashSet<String> preloadedClasses = new HashSet<String>();
-	
-	private Pattern forbiddenPatterns;
-	private HashSet<String> forbiddenFixedPatterns = new HashSet<String>();
+
+	private enum ListFunctionality {
+		WHITE {
+			@Override
+			public boolean shouldSkip(String className) {
+				return !fixedNames.contains(className) &&
+						(namePatterns == null || !namePatterns.matcher(className).matches());
+			}
+
+			@Override
+			public Collection<String> getSkippedNames() {
+				return new HashSet<>();
+			}
+		},
+		BLACK {
+			@Override
+			public boolean shouldSkip(String className) {
+				return fixedNames.contains(className) ||
+						(namePatterns != null && namePatterns.matcher(className).matches());
+			}
+
+			@Override
+			public Collection<String> getSkippedNames() {
+				return fixedNames;
+			}
+		};
+		protected static Pattern namePatterns;
+		protected static Set<String> fixedNames = new HashSet<>();
+
+		public abstract Collection<String> getSkippedNames();
+		public abstract boolean shouldSkip(String className);
+	}
+	private ListFunctionality listFunctionality = ListFunctionality.WHITE;
 
 	private HashSet<String> applicationClasses = new HashSet<String>();
 	
@@ -47,33 +76,55 @@ public class Instrumenter implements ClassFileTransformer {
 		logger.log(Level.INFO, "Initialized instrumenter");
 	}
 
+	private String getFilterFileName() {
+		String fileName = System.getProperty("jinst.filterfile");
+		if (fileName == null) {
+			fileName = "jifilter.txt";
+		}
+		logger.log(Level.INFO, "Filter file name " + fileName);
+		return fileName;
+	}
+
 	private void createForbiddenClasses() {
 		try {
 			ArrayList<String> regexes = new ArrayList<>();
-			try (Stream<String> stream = Files.lines(Paths.get(PROPERTIES_FILE_NAME))) {
+			try (Stream<String> stream = Files.lines(Paths.get(getFilterFileName()))) {
 				stream.forEach((line) -> {
 					line = line.trim();
-					if (line.contains("*")) {
-						regexes.add(line.replaceAll("\\*", "([^/]+)"));
+					if (line.startsWith("#") || line.length() == 0) {
+						// Do nothing
+					} else if (line.matches("\\[\\w+\\]")) {
+						// Directive
+						switch (line.toLowerCase().substring(1, line.length()-1)) {
+							case "white":
+							case "include":
+							case "whitelist":
+								listFunctionality = ListFunctionality.WHITE;
+								break;
+							case "black":
+							case "exclude":
+							case "blacklist":
+								listFunctionality = ListFunctionality.BLACK;
+								break;
+						}
 					} else {
-						forbiddenFixedPatterns.add(line);
+						if (line.contains("*")) {
+//							regexes.add(line.replaceAll("\\*", "([^/]+)"));
+							regexes.add(line.replaceAll("\\*", ".+"));
+						} else {
+							ListFunctionality.fixedNames.add(line);
+						}
 					}
 				});
 			}
-			forbiddenPatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
+			logger.log(Level.INFO,
+					"Loaded filter file. Type=" + listFunctionality.toString() +
+							" fixed#=" + ListFunctionality.fixedNames.size() +
+							" pattern#=" + regexes.size());
+			ListFunctionality.namePatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
 		} catch (IOException e) {
 			logger.log(Level.WARNING, "Couldn't read filter file");
 		}
-//		forbiddenPatterns.add("java/util/LinkedList");
-//		forbiddenPatterns.add("java/util/Queue");
-//		forbiddenPatterns.add("java/util/AbstractSequentialList");
-//		forbiddenPatterns.add("java/util/LinkedList$Entry");
-//		forbiddenPatterns.add("java/util/HashMap$KeySet");
-//		forbiddenPatterns.add("java/util/HashMap$KeyIterator");
-//		forbiddenPatterns.add("java/util/HashMap$HashIterator");
-//		forbiddenPatterns.add("java/io/DataOutputStream");
-//		forbiddenPatterns.add("java/io/DataOutput");
-        System.err.println("....Initialized Instrumenter....");
 	}
 	
 	public static void premain(String agentArgs, Instrumentation inst) {
@@ -90,45 +141,29 @@ public class Instrumenter implements ClassFileTransformer {
 			String className = loadedClasses[counter].getName().replace('.', '/');
 			instance.preloadedClasses.add(className);
 		}
-		instance.preloadedClasses.addAll(instance.forbiddenFixedPatterns);
+		instance.preloadedClasses.addAll(instance.listFunctionality.getSkippedNames());
 	}
 
 	public byte[] transform(ClassLoader loader, String className, 
 	                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, 
 	                        byte[] classBytes)
 	throws IllegalClassFormatException {
+		if (listFunctionality.shouldSkip(className)) {
+			// Skip
+			return classBytes;
+		}
+
 		try {
-		if (shouldSkip(className)) {
-		//if (!forbiddenPatterns.contains(className) && className.startsWith("ca")) {
-//		if (!forbiddenPatterns.contains(className)) {
 			if (loader != null) {
 				applicationClasses.add(className);
 			}
 
 			return transform(classBytes, className);
-		} else {
-			return classBytes;
-		}
 		} catch (Throwable oops) {
 			logger.log(Level.SEVERE, "Error in transforming class " + className, oops);
 			return classBytes;
 		}
 	}
-
-	private boolean shouldSkip(String className) {
-		return !forbiddenFixedPatterns.contains(className) &&
-				!forbiddenPatterns.matcher(className).matches();
-
-//		return !className.startsWith("de/unisb") && !className.startsWith("java") &&
-//				!className.startsWith("org/apache/tools/ant") && !className.startsWith("jdk") &&
-//				!className.startsWith("org/junit") && !className.startsWith("com/sun") &&
-//				!className.startsWith("sun") && !forbiddenFixedPatterns.contains(className);
-	}
-
-	private PrintWriter createScratchFile(String name) throws IOException {
-	    name = name.replace('/', '.');
-        return new PrintWriter("/Users/mjafar/Library/Preferences/IntelliJIdea2018.2/scratches/"+name+".java");
-    }
 
 	protected byte[] transform(byte[] classBytes, String className) {
 		logger.log(Level.INFO, "Transforming " + className);
