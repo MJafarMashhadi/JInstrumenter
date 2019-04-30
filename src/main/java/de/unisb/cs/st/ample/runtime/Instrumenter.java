@@ -36,8 +36,8 @@ public class Instrumenter implements ClassFileTransformer {
 
 	private HashSet<String> preloadedClasses = new HashSet<String>();
 
-	private enum ListFunctionality {
-		WHITE {
+	private enum FunctionFilter {
+		WHITE_LIST {
 			@Override
 			public boolean shouldSkip(String className) {
 				return !fixedNames.contains(className) &&
@@ -49,7 +49,7 @@ public class Instrumenter implements ClassFileTransformer {
 				return new HashSet<>();
 			}
 		},
-		BLACK {
+		BLACK_LIST {
 			@Override
 			public boolean shouldSkip(String className) {
 				return fixedNames.contains(className) ||
@@ -67,12 +67,12 @@ public class Instrumenter implements ClassFileTransformer {
 		public abstract Collection<String> getSkippedNames();
 		public abstract boolean shouldSkip(String className);
 	}
-	private ListFunctionality listFunctionality = ListFunctionality.WHITE;
+	private FunctionFilter functionFilter;
 
 	private HashSet<String> applicationClasses = new HashSet<String>();
 	
 	private Instrumenter() {
-		createForbiddenClasses();
+		readFilterFile();
 		logger.log(Level.INFO, "Initialized instrumenter");
 	}
 
@@ -85,7 +85,7 @@ public class Instrumenter implements ClassFileTransformer {
 		return fileName;
 	}
 
-	private void createForbiddenClasses() {
+	private void readFilterFile() {
 		try {
 			ArrayList<String> regexes = new ArrayList<>();
 			try (Stream<String> stream = Files.lines(Paths.get(getFilterFileName()))) {
@@ -99,29 +99,28 @@ public class Instrumenter implements ClassFileTransformer {
 							case "white":
 							case "include":
 							case "whitelist":
-								listFunctionality = ListFunctionality.WHITE;
+								functionFilter = FunctionFilter.WHITE_LIST;
 								break;
 							case "black":
 							case "exclude":
 							case "blacklist":
-								listFunctionality = ListFunctionality.BLACK;
+								functionFilter = FunctionFilter.BLACK_LIST;
 								break;
 						}
 					} else {
 						if (line.contains("*")) {
-//							regexes.add(line.replaceAll("\\*", "([^/]+)"));
 							regexes.add(line.replaceAll("\\*", ".+"));
 						} else {
-							ListFunctionality.fixedNames.add(line);
+							FunctionFilter.fixedNames.add(line);
 						}
 					}
 				});
 			}
 			logger.log(Level.INFO,
-					"Loaded filter file. Type=" + listFunctionality.toString() +
-							" fixed#=" + ListFunctionality.fixedNames.size() +
+					"Loaded filter file. Type=" + functionFilter.toString() +
+							" fixed#=" + FunctionFilter.fixedNames.size() +
 							" pattern#=" + regexes.size());
-			ListFunctionality.namePatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
+			FunctionFilter.namePatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
 		} catch (IOException e) {
 			logger.log(Level.WARNING, "Couldn't read filter file");
 		}
@@ -141,14 +140,14 @@ public class Instrumenter implements ClassFileTransformer {
 			String className = loadedClasses[counter].getName().replace('.', '/');
 			instance.preloadedClasses.add(className);
 		}
-		instance.preloadedClasses.addAll(instance.listFunctionality.getSkippedNames());
+		instance.preloadedClasses.addAll(instance.functionFilter.getSkippedNames());
 	}
 
 	public byte[] transform(ClassLoader loader, String className, 
 	                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain, 
 	                        byte[] classBytes)
 	throws IllegalClassFormatException {
-		if (listFunctionality.shouldSkip(className)) {
+		if (functionFilter.shouldSkip(className)) {
 			// Skip
 			return classBytes;
 		}
