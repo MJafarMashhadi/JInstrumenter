@@ -3,7 +3,6 @@ package de.unisb.cs.st.ample.runtime;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-//public class IdentifierFieldSetConstructorVisitor extends MethodAdapter implements Opcodes {
 public class IdentifierFieldSetConstructorVisitor extends MethodVisitor implements Opcodes {
 
 	public static final String FIELD_OBJECTID = "___objectid";

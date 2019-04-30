@@ -7,7 +7,6 @@ import org.softevo.util.asm.IdentifierMap;
 
 import java.util.HashSet;
 
-//public class CallSequenceClassVisitor extends ClassAdapter implements Opcodes {
 public class CallSequenceClassVisitor extends ClassVisitor implements Opcodes {
 
 	private String className = null;
