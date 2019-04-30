@@ -1,11 +1,11 @@
-package de.unisb.cs.st.ample.test;
+package ca.ucalgary.sealab.jinstrumenter.test;
+
+import org.softevo.util.datastructures.Graph;
+import org.softevo.util.datastructures.GraphNode;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Hashtable;
-
-import org.softevo.util.datastructures.Graph;
-import org.softevo.util.datastructures.GraphNode;
 
 public class RandomCallGraphGenerator {
 

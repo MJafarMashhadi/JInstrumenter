@@ -9,8 +9,8 @@ LIBDIR=${INSTALL}/lib
 
 cd $INSTALL
 rm -rf java
-jar xvf $LIBDIR/ample-$VERSION.jar java/lang
+jar xvf $LIBDIR/jinstrumenter-$VERSION.jar java/lang
 mv java $1/jre/lib
 cd $1/jre/lib
-jar ufv rt.jar java/lang/ample/*
+jar ufv rt.jar java/lang/jinstrumenter/*
 rm -rf java

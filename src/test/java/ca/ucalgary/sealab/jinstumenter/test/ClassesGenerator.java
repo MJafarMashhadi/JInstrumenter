@@ -1,4 +1,9 @@
-package de.unisb.cs.st.ample.test;
+package ca.ucalgary.sealab.jinstrumenter.test;
+
+import org.apache.commons.io.FileUtils;
+import org.softevo.util.datastructures.Graph;
+import org.softevo.util.datastructures.GraphEdge;
+import org.softevo.util.datastructures.GraphNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,11 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.apache.commons.io.FileUtils;
-import org.softevo.util.datastructures.Graph;
-import org.softevo.util.datastructures.GraphEdge;
-import org.softevo.util.datastructures.GraphNode;
 
 public class ClassesGenerator {
 

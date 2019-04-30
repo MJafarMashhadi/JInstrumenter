@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ample.iml" filepath="$PROJECT_DIR$/ample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jinstrumenter.iml" filepath="$PROJECT_DIR$/jinstrumenter.iml" />
     </modules>
   </component>
 </project>

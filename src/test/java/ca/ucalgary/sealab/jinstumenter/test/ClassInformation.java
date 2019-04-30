@@ -1,4 +1,4 @@
-package de.unisb.cs.st.ample.test;
+package ca.ucalgary.sealab.jinstrumenter.test;
 
 import java.util.HashSet;
 

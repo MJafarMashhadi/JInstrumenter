@@ -9,7 +9,7 @@ org/apache/tools/ant/*
 com/intellij/*
 org/jetbrains/*
 
-de/unisb/*
+ca/ucalgary/sealab/jinstrumenter*
 
 
 # In case of commenting out the above lines, uncomment these lines:

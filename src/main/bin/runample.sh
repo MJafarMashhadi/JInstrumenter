@@ -2,7 +2,7 @@
 
 # Installation directory
 INSTALL=..
-#/Users/mjafar/Downloads/ample-1.0
+#/Users/mjafar/Downloads/jinstrumenter-1.0
 
 #========================== No need to edit anything from here =========================
 
@@ -18,4 +18,4 @@ CLASSPATH=${CLASSPATH:0:${#CLASSPATH} - 1}
 
 $echo $CLASSPATH
 
-java -Xmx1000M -Xbootclasspath/a:$CLASSPATH -javaagent:$INSTALL/lib/ample-1.0.jar "$@"
+java -Xmx1000M -Xbootclasspath/a:$CLASSPATH -javaagent:$INSTALL/lib/jinstrumenter-1.0.jar "$@"

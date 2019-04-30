@@ -10,7 +10,7 @@ configurable through the config files and JVM parameters.
 
 ## Usage
 
-You should include the ample.jar as the java agent to java command that runs
+You should include the `jinstrumenter.jar` as the java agent to java command that runs
 your target application. In order to do that, you need to use `-javaagent:`
 argument followed by path to the jar file. Also since this is dependent on some
 other libraries (their jar files are included in `lib` directory), you need
@@ -22,13 +22,13 @@ So an example can be:
     
     
     java \
-        -Xbootclasspath/a:lib/asm-7.0.jar:lib/asm-analysis-7.0.jar:lib/asm-commons-7.0.jar:lib/asm-tree-7.0.jar:lib/asm-util-7.0.jar:lib/commons-collections-1.0.jar:lib/commons-io-1.0.jar:lib/commons-lang-2.1.jar:lib/log4j-1.2.13.jar:lib/util-0.1.jar:ample/ample-1.0.jar \
-        -javaagent:ample/ample-1.0.jar \
+        -Xbootclasspath/a:lib/asm-7.0.jar:lib/asm-analysis-7.0.jar:lib/asm-commons-7.0.jar:lib/asm-tree-7.0.jar:lib/asm-util-7.0.jar:lib/commons-collections-1.0.jar:lib/commons-io-1.0.jar:lib/commons-lang-2.1.jar:lib/log4j-1.2.13.jar:lib/util-0.1.jar:jinstrumenter/jinstrumenter-1.0.jar \
+        -javaagent:jinstrumenter/jinstrumenter-1.0.jar \
         -jar path/to/target/application.jar
     
 
 where all the dependencies are in `lib/` and this project's jar file is located
-in `ample/ample-1.0.jar`.
+in `jinstrumenter/jinstrumenter-1.0.jar`.
 
 JInstrumenter can be attached to ant and maven targets as well.
 
@@ -43,8 +43,8 @@ These configuration options are available at runtime:
 example:
     
     java \
-        -Xbootclasspath/a:lib/asm-7.0.jar:lib/asm-analysis-7.0.jar:lib/asm-commons-7.0.jar:lib/asm-tree-7.0.jar:lib/asm-util-7.0.jar:lib/commons-collections-1.0.jar:lib/commons-io-1.0.jar:lib/commons-lang-2.1.jar:lib/log4j-1.2.13.jar:lib/util-0.1.jar:ample/ample-1.0.jar \
-        -javaagent:ample/ample-1.0.jar \
+        -Xbootclasspath/a:lib/asm-7.0.jar:lib/asm-analysis-7.0.jar:lib/asm-commons-7.0.jar:lib/asm-tree-7.0.jar:lib/asm-util-7.0.jar:lib/commons-collections-1.0.jar:lib/commons-io-1.0.jar:lib/commons-lang-2.1.jar:lib/log4j-1.2.13.jar:lib/util-0.1.jar:jinstrumenter/jinstrumenter-1.0.jar \
+        -javaagent:jinstrumenter/jinstrumenter-1.0.jar \
         -Djinst.filterfile=whitelist.txt \
         -Djinst.tracefile=output/%time%/Thread-%tid%.txt \
         -jar path/to/target/application.jar
@@ -56,7 +56,7 @@ The first line of filter file should indicate whether it is a black list (ignore
 a white list with a directive: `[white]`, `[include]`, `[whitelist]` 
 or `[black]`, `[exclude]`, `[blacklist]`. Comments start with `#`. You can add patterns
 like `java/*`, `com/example/a*`, or add fixed names like 
-`de.unisb.cs.st.ample.runtime.Instrumenter`. 
+`Instrumenter`. 
 
 ### Note
 

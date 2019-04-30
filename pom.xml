@@ -4,18 +4,26 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.unisb.cs.st</groupId>
-    <artifactId>ample</artifactId>
-    <name>AMPLE</name>
-    <description>Automatic defect localization based on method call sequences.</description>
+    <groupId>ca.ucalgary.sealab</groupId>
+    <artifactId>jinstrumenter</artifactId>
+    <name>JInstrumenter</name>
+    <description>Instrument java applications and create execution trace files.</description>
 
     <version>1.0</version>
     <packaging>jar</packaging>
-    <url>http://www.st.cs.uni-sb.de/</url>
-    <inceptionYear>2004</inceptionYear>
+    <url>https://sea-lab.github.io</url>
+    <inceptionYear>2019</inceptionYear>
 
     <developers>
-         <developer>
+        <developer>
+            <id>mjafar</id>
+            <name>Mohammad Jafar Mashhadi</name>
+            <email>me@mjafar.me</email>
+            <url>https://mjafar.me</url>
+            <organization>SEA lab at University of Calgary</organization>
+            <organizationUrl>https://sea-lab.github.io/</organizationUrl>
+        </developer>
+        <developer>
             <id>dallmeier</id>
             <name>Valentin Dallmeier</name>
             <email>dallmeier@cs.uni-sb.de</email>
@@ -26,23 +34,6 @@
         </developer>
     </developers>
 
-    <ciManagement>
-        <system>Continuum</system>
-        <url>http://kubrick:8080/continuum/</url>
-        <notifiers>
-            <notifier>
-                <type>mail</type>
-                <sendOnError>true</sendOnError>
-                <sendOnFailure>true</sendOnFailure>
-                <sendOnSuccess>true</sendOnSuccess>
-                <sendOnWarning>true</sendOnWarning>
-                <configuration>
-                    <address>dallmeier@st.cs.uni-sb.de</address>
-                </configuration>
-            </notifier>
-        </notifiers>
-    </ciManagement>
-
     <licenses>
         <license>
             <name>Eclipse Public License (EPL)</name>
@@ -51,14 +42,9 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:svn+ssh://ssh.st.cs.uni-sb.de/home/SVN/dallmeier/devel/ample/trunk</connection>
-        <developerConnection>scm:svn+ssh://ssh.st.cs.uni-sb.de/home/SVN/dallmeier/devel/ample/trunk</developerConnection>
-    </scm>
-
     <organization>
-        <name>Software Engineering Group at Saarland University</name>
-        <url>http://www.st.cs.uni-sb.de/</url>
+        <name>SEA lab at University of Calgary</name>
+        <url>https://sea-lab.github.io/</url>
     </organization>
 
     <dependencies>
@@ -180,7 +166,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>de.unisb.cs.st.ample.runtime.Instrumenter</Premain-Class>
+                            <Premain-Class>ca.ucalgary.sealab.jinstrumenter.runtime.Instrumenter</Premain-Class>
                             <Can-Redefine-Classes>True</Can-Redefine-Classes>
                         </manifestEntries>
                     </archive>
@@ -195,40 +181,13 @@
                     <!--</descriptorRefs>-->
                 </configuration>
             </plugin>
-            <!-- create Clover database before generating site -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clover-plugin</artifactId>
-                <configuration>
-                    <jdk>1.5</jdk>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>pre-site</phase>
-                        <goals>
-                            <goal>instrument</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>cobertura-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>clean</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>de.unisb.cs.st.ample.runtime.Instrumenter</Premain-Class>
+                            <Premain-Class>ca.ucalgary.sealab.jinstrumenter.runtime.Instrumenter</Premain-Class>
                             <Can-Redefine-Classes>True</Can-Redefine-Classes>
                         </manifestEntries>
                     </archive>
@@ -236,102 +195,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>cim</report>
-                            <report>dependencies</report>
-                            <!--report>issue-tracking</report-->
-                            <report>license</report>
-                            <!--report>mailing-list</report-->
-                            <report>index</report>
-                            <report>summary</report>
-                            <report>scm</report>
-                            <report>project-team</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <!-- Checkstyle - http://maven.apache.org/plugins/maven-checkstyle-plugin/howto.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
-                </configuration>
-            </plugin>
-            <!-- Clover - http://maven.apache.org/plugins/maven-clover-plugin/howto.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clover-plugin</artifactId>
-            </plugin>
-            <!-- FindBugs - http://mojo.codehaus.org/findbugs-maven-plugin/howto.html -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <effort>Max</effort>
-                </configuration>
-                <!-- FIXME As long as no final version is available we need to specify beta version here -->
-                <version>1.0-beta-1</version>
-            </plugin>
-            <!-- JavaDoc - http://maven.apache.org/plugins/maven-javadoc-plugin/configuration.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <minmemory>128m</minmemory>
-                    <maxmemory>512m</maxmemory>
-                </configuration>
-            </plugin>
-            <!-- JXR - http://maven.apache.org/plugins/maven-jxr-plugin/howto.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jxr-plugin</artifactId>
-            </plugin>
-            <!-- Surfire - http://maven.apache.org/plugins/maven-surefire-report-plugin/howto.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-            </plugin>
-            <!-- Cobertura - http://mojo.codehaus.org/cobertura-maven-plugin/usage.html -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-            </plugin>
-            <!-- JavaNCSS - http://mojo.codehaus.org/javancss-maven-plugin/introduction.html -->
-            <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>javancss-maven-plugin</artifactId>
-            </plugin-->
-            <!-- PMD - http://maven.apache.org/plugins/maven-pmd-plugin/ -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <linkXref>true</linkXref>
-                    <targetJdk>1.5</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <configuration>
-                    <tags>
-                        <tag>TODO</tag>
-                        <tag>FIXME</tag>
-                        <tag>XXX</tag>
-                    </tags>
-                </configuration>
-            </plugin>
-      </plugins>
-    </reporting>
 
 </project>
 
