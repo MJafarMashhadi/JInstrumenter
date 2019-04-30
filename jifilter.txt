@@ -1,0 +1,24 @@
+[blacklist]
+java/*
+jdk/*
+sun/*
+com/sun/*
+
+org/junit/*
+org/apache/tools/ant/*
+com/intellij/*
+org/jetbrains/*
+
+de/unisb/*
+
+
+# In case of commenting out the above lines, uncomment these lines:
+# java/util/LinkedList
+# java/util/Queue
+# java/util/AbstractSequentialList
+# java/util/LinkedList$Entry
+# java/util/HashMap$KeySet
+# java/util/HashMap$KeyIterator
+# java/util/HashMap$HashIterator
+# java/io/DataOutputStream
+# java/io/DataOutput
