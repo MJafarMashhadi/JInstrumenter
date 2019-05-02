@@ -30,7 +30,18 @@ So an example can be:
 where all the dependencies are in `lib/` and this project's jar file is located
 in `jinstrumenter/jinstrumenter-1.0.jar`.
 
-JInstrumenter can be attached to ant and maven targets as well.
+JInstrumenter can be attached to ant and maven targets as well. You can see 
+
+
+    <project name="Defects4J">
+        <property name="d4j.mj.jin.home" value="/Users/mjafar/JInstrumenter" />
+
+        <target name="run.dev.tests" depends="compile.tests,update.all.tests" description="Run unit tests">
+            <junit printsummary="yes" haltonfailure="no" haltonerror="no" fork="yes" showOutput="true">
+
+                <jvmarg value="-Xbootclasspath/a:${d4j.mj.jin.home}/asm-7.0.jar:${d4j.mj.jin.home}/asm-analysis-7.0.jar:${d4j.mj.jin.home}/asm-commons-7.0.jar:${d4j.mj.jin.home}/asm-tree-7.0.jar:${d4j.mj.jin.home}/asm-util-7.0.jar:${d4j.mj.jin.home}/commons-collections-1.0.jar:${d4j.mj.jin.home}/commons-io-1.0.jar:${d4j.mj.jin.home}/commons-lang-2.1.jar:${d4j.mj.jin.home}/log4j-1.2.13.jar:${d4j.mj.jin.home}/util-0.1.jar" />
+                <jvmarg value="-javaagent:${d4j.mj.jin.home}/jinstrumenter-1.0.jar" />
+        ...
 
 
 ## Configuration parameters  
