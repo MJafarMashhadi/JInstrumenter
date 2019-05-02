@@ -20,7 +20,7 @@ public class CallSequenceSetRecorder {
 
 	public static final int OBJECTID_STATIC = -2;
 
-	private static final HashMap<Integer, OutputStream> threadTraceMap = new HashMap<>();
+	private static final HashMap<Integer, OutputStream> threadTraceMap = new HashMap<Integer, OutputStream>();
 	private static Object lock = new Object();
 
 	private static int idCounter = 0;

@@ -6,6 +6,8 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.softevo.util.asm.ClassIdentifierMap;
 import org.softevo.util.asm.IdentifierMap;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.instrument.ClassFileTransformer;
@@ -21,7 +23,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 public class Instrumenter implements ClassFileTransformer {
 	protected static Logger logger = Logger.getLogger("JInstrumenter");
@@ -46,7 +47,7 @@ public class Instrumenter implements ClassFileTransformer {
 
 			@Override
 			public Collection<String> getSkippedNames() {
-				return new HashSet<>();
+				return new HashSet<String>();
 			}
 		},
 		BLACK_LIST {
@@ -62,7 +63,7 @@ public class Instrumenter implements ClassFileTransformer {
 			}
 		};
 		protected static Pattern namePatterns;
-		protected static Set<String> fixedNames = new HashSet<>();
+		protected static Set<String> fixedNames = new HashSet<String>();
 
 		public abstract Collection<String> getSkippedNames();
 		public abstract boolean shouldSkip(String className);
@@ -86,44 +87,44 @@ public class Instrumenter implements ClassFileTransformer {
 	}
 
 	private void readFilterFile() {
-		try {
-			ArrayList<String> regexes = new ArrayList<>();
-			try (Stream<String> stream = Files.lines(Paths.get(getFilterFileName()))) {
-				stream.forEach((line) -> {
-					line = line.trim();
-					if (line.startsWith("#") || line.length() == 0) {
-						// Do nothing
-					} else if (line.matches("\\[\\w+\\]")) {
-						// Directive
-						switch (line.toLowerCase().substring(1, line.length()-1)) {
-							case "white":
-							case "include":
-							case "whitelist":
-								functionFilter = FunctionFilter.WHITE_LIST;
-								break;
-							case "black":
-							case "exclude":
-							case "blacklist":
-								functionFilter = FunctionFilter.BLACK_LIST;
-								break;
-						}
-					} else {
-						if (line.contains("*")) {
-							regexes.add(line.replaceAll("\\*", ".+"));
-						} else {
-							FunctionFilter.fixedNames.add(line);
-						}
+		ArrayList<String> regexes = new ArrayList<String>();
+		BufferedReader reader = null;
+		try { 
+			reader = new BufferedReader(new FileReader(getFilterFileName()));
+			String line = reader.readLine();
+			while (line != null) {
+				line = line.trim();
+				if (line.startsWith("#") || line.length() == 0) {
+					// Do nothing
+				} else if (line.matches("\\[\\w+\\]")) {
+					// Directive
+					line = line.toLowerCase().substring(1, line.length()-1);
+					if ("white".equals(line) || "include".equals(line) || "whitelist".equals(line)) {
+						functionFilter = FunctionFilter.WHITE_LIST;
+					} else if ("black".equals(line) || "exclude".equals(line) || "blacklist".equals(line)) {
+						functionFilter = FunctionFilter.BLACK_LIST;
 					}
-				});
+				} else {
+					if (line.contains("*")) {
+						regexes.add(line.replaceAll("\\*", ".+"));
+					} else {
+						FunctionFilter.fixedNames.add(line);
+					}
+				}
+
+				// read next line
+				line = reader.readLine();
 			}
-			logger.log(Level.INFO,
-					"Loaded filter file. Type=" + functionFilter.toString() +
-							" fixed#=" + FunctionFilter.fixedNames.size() +
-							" pattern#=" + regexes.size());
-			FunctionFilter.namePatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "Couldn't read filter file");
+		} catch(IOException e) {
+			logger.log(Level.SEVERE, "Couldn't read filter file", e);
+		} finally {
+			try{if(reader!=null)reader.close();}catch(IOException ignored){}
 		}
+		logger.log(Level.INFO,
+				"Loaded filter file. Type=" + functionFilter.toString() +
+						" fixed#=" + FunctionFilter.fixedNames.size() +
+						" pattern#=" + regexes.size());
+		FunctionFilter.namePatterns = Pattern.compile("(" + String.join(")|(", regexes) + ")");
 	}
 	
 	public static void premain(String agentArgs, Instrumentation inst) {
