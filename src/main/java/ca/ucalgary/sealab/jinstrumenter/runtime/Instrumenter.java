@@ -91,8 +91,7 @@ public class Instrumenter implements ClassFileTransformer {
 		BufferedReader reader = null;
 		try { 
 			reader = new BufferedReader(new FileReader(getFilterFileName()));
-			String line = reader.readLine();
-			while (line != null) {
+			for(String line; (line = reader.readLine()) != null; ) {
 				line = line.trim();
 				if (line.startsWith("#") || line.length() == 0) {
 					// Do nothing
@@ -111,9 +110,6 @@ public class Instrumenter implements ClassFileTransformer {
 						FunctionFilter.fixedNames.add(line);
 					}
 				}
-
-				// read next line
-				line = reader.readLine();
 			}
 		} catch(IOException e) {
 			logger.log(Level.SEVERE, "Couldn't read filter file", e);
